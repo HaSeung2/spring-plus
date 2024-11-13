@@ -1,10 +1,14 @@
 package org.example.expert.domain.todo.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
+import org.example.expert.domain.todo.dto.request.TodoSearchRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
@@ -66,6 +70,23 @@ public class TodoService {
         ));
     }
 
+    public Page<TodoResponse> searchTodos(
+        int page,
+        int size,
+        TodoSearchRequest todoSearchRequest) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        if(todoSearchRequest.getWeather() != null && (todoSearchRequest.getStartDate() == null && todoSearchRequest.getEndDate() == null)){
+            return todoRepository.findByWeather(todoSearchRequest.getWeather(), pageable).map(TodoResponse::new);
+        }
+        if(todoSearchRequest.getWeather() == null && (todoSearchRequest.getStartDate() != null && todoSearchRequest.getEndDate() != null)){
+            return todoRepository.findByModifyAt(parseLocalDateTime(todoSearchRequest.getStartDate()), parseLocalDateTime(todoSearchRequest.getEndDate()), pageable).map(TodoResponse::new);
+        }
+        if(todoSearchRequest.getWeather() != null && (todoSearchRequest.getStartDate() != null && todoSearchRequest.getEndDate() != null)){
+            return todoRepository.findByWeatherAndModifyAt(todoSearchRequest.getWeather() , parseLocalDateTime(todoSearchRequest.getStartDate()), parseLocalDateTime(todoSearchRequest.getEndDate()), pageable).map(TodoResponse::new);
+        }
+        throw new InvalidRequestException("검색 조건을 제대로 입력해주세요");
+    }
+
     public TodoResponse getTodo(long todoId) {
         Todo todo = todoRepository.findByIdWithUser(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
@@ -82,5 +103,9 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         );
+    }
+
+    private LocalDateTime parseLocalDateTime(String date) {
+        return LocalDate.parse(date, DateTimeFormatter.ISO_DATE).atStartOfDay();
     }
 }
