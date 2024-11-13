@@ -19,12 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+// 1번 문제 readOnly true 로 되어 있어서 에러 발생
 @Transactional(readOnly = true)
 public class TodoService {
 
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
 
+    @Transactional
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
 
