@@ -3,12 +3,17 @@ package org.example.expert.domain.todo.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.domain.manager.entity.Manager;
+import org.example.expert.domain.manager.repository.ManagerRepository;
+import org.example.expert.domain.todo.dto.request.TodoQueryDslSearchRequest;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.request.TodoSearchRequest;
+import org.example.expert.domain.todo.dto.response.TodoQueryDslSearchResponse;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
@@ -53,8 +58,18 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
+    public Page<TodoResponse> getTodos(int page, int size, TodoSearchRequest todoSearchRequest) {
         Pageable pageable = PageRequest.of(page - 1, size);
+
+        if(todoSearchRequest.getWeather() != null && (todoSearchRequest.getStartDate() == null && todoSearchRequest.getEndDate() == null)){
+            return todoRepository.findByWeather(todoSearchRequest.getWeather(), pageable).map(TodoResponse::new);
+        }
+        if(todoSearchRequest.getWeather() == null && (todoSearchRequest.getStartDate() != null && todoSearchRequest.getEndDate() != null)){
+            return todoRepository.findByModifyAt(parseLocalDateTime(todoSearchRequest.getStartDate()), parseLocalDateTime(todoSearchRequest.getEndDate()), pageable).map(TodoResponse::new);
+        }
+        if(todoSearchRequest.getWeather() != null && (todoSearchRequest.getStartDate() != null && todoSearchRequest.getEndDate() != null)){
+            return todoRepository.findByWeatherAndModifyAt(todoSearchRequest.getWeather() , parseLocalDateTime(todoSearchRequest.getStartDate()), parseLocalDateTime(todoSearchRequest.getEndDate()), pageable).map(TodoResponse::new);
+        }
 
         Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
 
@@ -69,21 +84,15 @@ public class TodoService {
         ));
     }
 
-    public Page<TodoResponse> searchTodos(
+    public Page<TodoQueryDslSearchResponse> searchTodos(
         int page,
         int size,
-        TodoSearchRequest todoSearchRequest) {
+        TodoQueryDslSearchRequest todoQueryDslSearchRequest) {
+        LocalDateTime startDate = todoQueryDslSearchRequest.getStartDate() != null ? parseLocalDateTime(todoQueryDslSearchRequest.getStartDate()) : null;
+        LocalDateTime endDate = todoQueryDslSearchRequest.getEndDate() != null ? parseLocalDateTime(todoQueryDslSearchRequest.getEndDate()) : null;
         Pageable pageable = PageRequest.of(page - 1, size);
-        if(todoSearchRequest.getWeather() != null && (todoSearchRequest.getStartDate() == null && todoSearchRequest.getEndDate() == null)){
-            return todoRepository.findByWeather(todoSearchRequest.getWeather(), pageable).map(TodoResponse::new);
-        }
-        if(todoSearchRequest.getWeather() == null && (todoSearchRequest.getStartDate() != null && todoSearchRequest.getEndDate() != null)){
-            return todoRepository.findByModifyAt(parseLocalDateTime(todoSearchRequest.getStartDate()), parseLocalDateTime(todoSearchRequest.getEndDate()), pageable).map(TodoResponse::new);
-        }
-        if(todoSearchRequest.getWeather() != null && (todoSearchRequest.getStartDate() != null && todoSearchRequest.getEndDate() != null)){
-            return todoRepository.findByWeatherAndModifyAt(todoSearchRequest.getWeather() , parseLocalDateTime(todoSearchRequest.getStartDate()), parseLocalDateTime(todoSearchRequest.getEndDate()), pageable).map(TodoResponse::new);
-        }
-        throw new InvalidRequestException("검색 조건을 제대로 입력해주세요");
+        return todoRepository.searchTodo(todoQueryDslSearchRequest.getKeyword(), startDate, endDate,
+                                         todoQueryDslSearchRequest.getNickName(), pageable);
     }
 
     public TodoResponse getTodo(long todoId) {
