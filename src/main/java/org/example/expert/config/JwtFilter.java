@@ -56,7 +56,7 @@ public class JwtFilter implements Filter {
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
                 SecurityContextHolder.getContext().setAuthentication(getUser(username));
             }
-
+            request.setAttribute("userId", claims.get("userId", String.class));
             chain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException | SignatureException e) {
             log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.",
