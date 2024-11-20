@@ -1,5 +1,6 @@
 package org.example.expert.domain.user.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.common.annotation.Auth;
 import org.example.expert.domain.common.dto.AuthUser;
@@ -23,5 +24,10 @@ public class UserController {
     @PutMapping("/users")
     public void changePassword(@Auth AuthUser authUser, @RequestBody UserChangePasswordRequest userChangePasswordRequest) {
         userService.changePassword(authUser.getId(), userChangePasswordRequest);
+    }
+
+    @GetMapping("/users/search")
+    public ResponseEntity<List<UserResponse>> searchUserByNickName(@RequestParam String nickName) {
+        return ResponseEntity.ok(userService.searchByNickName(nickName));
     }
 }

@@ -1,5 +1,6 @@
 package org.example.expert.domain.user.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.dto.request.UserChangePasswordRequest;
@@ -52,5 +53,9 @@ public class UserService {
             || !userChangePasswordRequest.getNewPassword().matches(".*[A-Z].*")) {
             throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
         }
+    }
+
+    public List<UserResponse> searchByNickName(String nickName) {
+        return userRepository.findByNickName(nickName).stream().map(UserResponse::new).toList();
     }
 }
