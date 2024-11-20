@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.user.entity.User;
@@ -17,18 +16,6 @@ import org.springframework.stereotype.Repository;
 public class UserJdbcRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public void saveAll(List<User> users) {
-        int batchSize = 100000;
-        List<User> userList = new ArrayList<>();
-        for(int i = 0; i < users.size(); i++) {
-            userList.add(users.get(i));
-            if(userList.size() == batchSize) {
-                this.batchInsert(userList);
-                userList.clear();
-            }
-        }
-    }
 
     public void batchInsert(List<User> users){
         String sql = "INSERT INTO users"

@@ -58,4 +58,8 @@ public class UserService {
     public List<UserResponse> searchByNickName(String nickName) {
         return userRepository.findByNickName(nickName).stream().map(UserResponse::new).toList();
     }
+
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream().map(UserResponse::new).toList();
+    }
 }

@@ -30,4 +30,9 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> searchUserByNickName(@RequestParam String nickName) {
         return ResponseEntity.ok(userService.searchByNickName(nickName));
     }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        return ResponseEntity.ok(userService.findAll());
+    }
 }

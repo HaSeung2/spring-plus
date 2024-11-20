@@ -1,6 +1,7 @@
 package org.example.expert.domain.users;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -8,7 +9,6 @@ import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
 import org.example.expert.domain.user.repository.UserJdbcRepository;
 import org.example.expert.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -51,28 +51,27 @@ public class UserTest {
 
     private final String password = BCrypt.withDefaults().hashToString(BCrypt.MIN_COST, "1234".toCharArray());
 
-    @BeforeEach
-    public void setUp(){
-        Random random = new Random();
-        String randomName;
-        users = new ArrayList<>();
-        for(int i = 1; i <= 1000000; i++){
-            randomName = first[random.nextInt(first.length-1)] + name[random.nextInt(name.length-1)] + name[random.nextInt(name.length-1)];
-            User user = new User("dl"+i+"@gmail.com", password, randomName, UserRole.ROLE_USER);
-            users.add(user);
-        }
-    }
-
     @Test
     @DisplayName("Batch Insert 사용")
     public void testInsert() {
         //given
         long startTime = System.currentTimeMillis();
+        Random random = new Random();
+        String randomName;
+        int batchSize = 100000;
 
         //when
-        userJdbcRepository.saveAll(users);
+        users = new ArrayList<>();
+        for(int i = 1; i <= 1000000; i++){
+            randomName = first[random.nextInt(first.length-1)] + name[random.nextInt(name.length-1)] + name[random.nextInt(name.length-1)];
+            User user = new User("dl"+i+"@gmail.com", password, randomName, UserRole.ROLE_USER);
+            users.add(user);
+            if(users.size() == batchSize) {
+                userJdbcRepository.batchInsert(users);
+                users.clear();
+            }
+        }
         long endTime = System.currentTimeMillis();
-
         //then
         log.info("BatchInsert 사용한 insert 걸리는 시간 :" + (endTime - startTime)/1000);
     }
@@ -82,10 +81,22 @@ public class UserTest {
     public void testNormalInsert() {
         //given
         long startTime = System.currentTimeMillis();
+        log.info("시작 전 시간 : "+LocalDate.now());
+
+        Random random = new Random();
+        String randomName;
+        users = new ArrayList<>();
+
+        for(int i = 1; i <= 1000000; i++){
+            randomName = first[random.nextInt(first.length-1)] + name[random.nextInt(name.length-1)] + name[random.nextInt(name.length-1)];
+            User user = new User("dl"+i+"@gmail.com", password, randomName, UserRole.ROLE_USER);
+            users.add(user);
+        }
 
         //when
         userRepository.saveAll(users);
         long endTime = System.currentTimeMillis();
+        log.info("끝난 시간 : "+LocalDate.now());
 
         //then
         log.info("BatchInsert 사용하지않은 insert 걸리는 시간 :" + (endTime - startTime)/1000);
