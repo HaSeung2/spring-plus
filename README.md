@@ -8,7 +8,10 @@
 
 
 
-## 기존 유저 닉네임으로 검색시 걸리는 시간
-![기존 검색에 걸리는 시간](https://github.com/user-attachments/assets/8025108f-2e9f-48be-814a-f906a117baa7)
+## 유저 닉네임으로 검색시 걸리는 시간
+![1](https://github.com/user-attachments/assets/082b783e-c468-4525-bfb8-a5862ab401a6)
 
+
+## 닉네임 컬럼에 인덱스 부여 후 검색 걸리는 시간
+![2](https://github.com/user-attachments/assets/c9f78093-1f47-4908-8f0b-25e25f54aa18)
 
