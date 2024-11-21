@@ -28,13 +28,6 @@ import java.time.LocalDateTime;
 public class AdminAccessLoggingAspect {
 
     private final HttpServletRequest request;
-    private final LogService logService;
-
-    @Pointcut("execution(* org.example.expert.domain.manager.controller.ManagerController.saveManager(..))")
-    private void saveManager() {}
-
-    @Pointcut("execution(* org.example.expert.domain.todo.controller.TodoController.saveTodo(..))")
-    private void saveTodo(){}
 
     @Before("execution(* org.example.expert.domain.user.controller.UserAdminController.changeUserRole(..))")
     public void logAfterChangeUserRole(JoinPoint joinPoint) {
@@ -44,20 +37,5 @@ public class AdminAccessLoggingAspect {
 
         log.info("Admin Access Log - User ID: {}, Request Time: {}, Request URL: {}, Method: {}",
                 userId, requestTime, requestUrl, joinPoint.getSignature().getName());
-    }
-
-    @Before("saveManager() || saveTodo()")
-    public void logBeforeManagerCreate(JoinPoint joinPoint) {
-        UserDetailsImpl user = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long userId =user.getUser().getId();
-        String requestUrl = request.getRequestURI();
-        String method = request.getMethod();
-        LocalDateTime requestTime = LocalDateTime.now();
-
-        log.info("Manager Create Log - User ID: {}, Request Time: {}, Request: {} {}, Method: {}",
-                 userId, requestTime, method,requestUrl, joinPoint.getSignature().getName());
-
-        LogDto logDto = LogDto.builder().userId(userId).method(method).requestUrl(requestUrl).requestTime(requestTime).build();
-        logService.saveLog(logDto);
     }
 }

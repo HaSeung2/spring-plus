@@ -18,15 +18,21 @@ public class Log {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
-    private String method;
-    private String requestUrl;
+    private Long todoId;
+    private Long targetId;
+    private boolean status;
     private LocalDateTime requestTime;
 
     @Builder
-    public Log(Long userId, String method, String requestUrl, LocalDateTime requestTime) {
+    public Log(Long userId, Long todoId, Long targetId, boolean status, LocalDateTime requestTime) {
         this.userId = userId;
-        this.method = method;
-        this.requestUrl = requestUrl;
+        this.todoId = todoId;
+        this.targetId = targetId;
+        this.status = status;
         this.requestTime = requestTime;
+    }
+
+    public void updateStatus(boolean status) {
+        this.status = status;
     }
 }

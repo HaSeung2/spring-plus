@@ -7,15 +7,17 @@ import lombok.Getter;
 @Getter
 public class LogDto {
     private final Long userId;
-    private final String method;
-    private final String requestUrl;
+    private final Long todoId;
+    private final Long targetId;
+    private final boolean status;
     private final LocalDateTime requestTime;
 
     @Builder
-    public LogDto(final Long userId, final String method, final String requestUrl, final LocalDateTime requestTime) {
+    public LogDto(final Long userId, final Long todoId, final Long targetId, final boolean status, final LocalDateTime requestTime) {
         this.userId = userId;
-        this.method = method;
-        this.requestUrl = requestUrl;
+        this.todoId = todoId;
+        this.targetId = targetId;
+        this.status = status;
         this.requestTime = requestTime;
     }
 }
