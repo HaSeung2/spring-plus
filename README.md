@@ -15,3 +15,12 @@
 ## 닉네임 컬럼에 인덱스 부여 후 검색 걸리는 시간
 ![2](https://github.com/user-attachments/assets/c9f78093-1f47-4908-8f0b-25e25f54aa18)
 
+## S3 버킷 이용한 이미지 업로드 기능
+
+### user 테이블에 이미지 파일 이름 저장
+![1](https://github.com/user-attachments/assets/921bfc78-598c-4f3c-9fea-0602a120dd08)
+
+
+### 버킷에 저장
+![2](https://github.com/user-attachments/assets/2f696aa4-6f66-432d-8669-776479485876)
+
