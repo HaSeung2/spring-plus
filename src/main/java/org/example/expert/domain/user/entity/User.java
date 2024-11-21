@@ -20,6 +20,7 @@ public class User extends Timestamped {
     private String password;
     @Column(name = "nickname")
     private String nickName;
+    private String fileName;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
@@ -37,8 +38,8 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 
-    public static User fromAuthUser(AuthUser authUser) {
-        return new User(authUser.getId(), authUser.getEmail(), authUser.getNickName(), authUser.getUserRole());
+    public void uploadImage(String fileName){
+        this.fileName = fileName;
     }
 
     public void changePassword(String password) {

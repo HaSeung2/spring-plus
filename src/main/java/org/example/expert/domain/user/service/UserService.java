@@ -1,7 +1,9 @@
 package org.example.expert.domain.user.service;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.example.expert.aws.AwsS3Service;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.user.dto.request.UserChangePasswordRequest;
 import org.example.expert.domain.user.dto.response.UserResponse;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final AwsS3Service awsS3Service;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public UserResponse getUser(long userId) {
@@ -61,5 +64,24 @@ public class UserService {
 
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream().map(UserResponse::new).toList();
+    }
+
+    @Transactional
+    public void uploadImage(String fileName, User user) {
+        Optional.ofNullable(user.getFileName()).ifPresent(awsS3Service::deleteFile);
+        user.uploadImage(fileName);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteFile(String fileName, User user) {
+        Optional.ofNullable(user.getFileName()).ifPresent(file-> {
+           if(!fileName.equals(file)){
+               throw new InvalidRequestException("본인 프로필 이미지가 아닙니다.");
+           }
+            user.uploadImage(null);
+            awsS3Service.deleteFile(file);
+            userRepository.save(user);
+        });
     }
 }
